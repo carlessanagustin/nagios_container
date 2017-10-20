@@ -1,17 +1,20 @@
-# docker run -it -p 80:80 -p 443:443 -v $(pwd):/shared ubuntu:16.04 bash
-
 FROM ubuntu:16.04
+LABEL maintainer="Carles San Agustin"
+LABEL maintainer="twitter.carlessanagustin.com"
 
-ENV MAILNAME=your.hostname.com
+EXPOSE 80 443
+
 ENV NAGIOSPASSWORD=nagios123
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN cd $HOME && \
     apt-get update && \
-    echo "postfix postfix/mailname string $MAILNAME" | debconf-set-selections && \
-    echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y nagios3 && \
-    apt-get install -y nagios-plugins nagios-nrpe-plugin && \
-    apt-get install -y nagios-nrpe-server nagios-plugins && \
-    htpasswd -cb /etc/nagios3/htpasswd.users nagiosadmin $NAGIOSPASSWORD
+    apt-get install -y ssmtp mailutils && \
+    apt-get install -y apt-utils && \
+    echo "nagios3-cgi nagios3/adminpassword string $NAGIOSPASSWORD" | debconf-set-selections && \
+    echo "nagios3-cgi nagios3/adminpassword-repeat string $NAGIOSPASSWORD" | debconf-set-selections && \
+    apt-get install -y nagios3 nagios-plugins nagios-nrpe-plugin && \
+    apt-get install -y nagios-nrpe-server nagios-plugins
 
-RUN apt-get install -y supervisor
+COPY wrapper_script.sh wrapper_script.sh
+CMD ["./wrapper_script.sh"]
