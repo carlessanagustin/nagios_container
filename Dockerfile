@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 LABEL maintainer="Carles San Agustin"
-LABEL maintainer="twitter.carlessanagustin.com"
+LABEL maintainer="http://twitter.carlessanagustin.com"
 
 EXPOSE 80 443
 
